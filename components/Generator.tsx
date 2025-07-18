@@ -16,6 +16,14 @@ const Generator = ({ onHtmlGenerated }: { onHtmlGenerated: (html: string) => voi
     const [businessName, setBusinessName] = useState('');
     const [businessSector, setBusinessSector] = useState('Ristorazione');
     const [visualStyle, setVisualStyle] = useState('Moderno/Minimale');
+
+const [pages, setPages] = useState([
+  { name: 'Homepage', content: '' },
+  { name: 'Chi Siamo', content: '' },
+  { name: 'Servizi', content: '' },
+  { name: 'Contatti', content: '' },
+]);
+const [activePageIndex, setActivePageIndex] = useState(0);
     
     // Vecchi stati
     const [description, setDescription] = useState('');
