@@ -18,9 +18,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="it" className="!scroll-smooth">
+      <head>
+        {/* INCOLLI QUI LO SNIPPET DEL BANNER COOKIE DI IUBENDA */}
+        <Script id="iubenda-cs-script">
+          {`
+            // Il suo codice JavaScript di Iubenda va qui dentro.
+            // Esempio:
+            // var _iub = _iub || [];
+            // _iub.csConfiguration = {"lang":"it","siteId":123456,"cookiePolicyId":123456, ...};
+          `}
+        </Script>
+      </head>
       <body className={`${inter.className} bg-[#0a0a0a] text-neutral-50 antialiased`}>
         {children}
-        {/* Script per Google Translate */}
         <Script 
           src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" 
           strategy="afterInteractive" 
