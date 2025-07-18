@@ -1,5 +1,6 @@
+// FILE: package.json
 {
-  "name": "ai-wizard-corretto",
+  "name": "ai-wizard-pro",
   "version": "1.0.0",
   "description": "Generatore di siti web basato su AI con servizi professionali e di consulenza.",
   "private": true,
@@ -20,6 +21,7 @@
     "tailwind-merge": "^2.4.0"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0-alpha.13",
     "@types/node": "^20.14.10",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
