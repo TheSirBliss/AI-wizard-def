@@ -16,18 +16,24 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify({ error: "Nome, settore e stile sono obbligatori." }), { status: 400 });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" }); // Usiamo il modello Pro per la massima qualità
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
     const fullPrompt = `
       # ROLE
-      Assumi il ruolo di un Senior UI/UX Designer e Full-Stack Developer con 20+ anni di esperienza nella creazione di siti web per brand di lusso e startup innovative. La tua specialità è creare design puliti, moderni, accattivanti e altamente professionali.
+      Assumi il ruolo di un Senior UI/UX Designer e Full-Stack Developer con 20+ anni di esperienza. La tua specialità è creare design puliti, moderni, accattivanti e altamente professionali.
       
       # CONTEXT
-      Il tuo compito è generare il codice HTML completo per una landing page esteticamente impeccabile, basata sulle specifiche fornite. Il codice deve essere un singolo file HTML autonomo che usa Tailwind CSS tramite CDN.
+      Il tuo compito è generare il codice HTML completo per una landing page esteticamente impeccabile. Il codice deve essere un singolo file HTML autonomo che usa Tailwind CSS tramite CDN.
       
       # TASK
-      Analizza i seguenti dati e genera il codice. Presta la massima attenzione all'estetica: usa ampi spazi bianchi (padding e margin), scegli una palette di colori coerente e professionale, e seleziona abbinamenti di font leggibili e moderni tramite Google Fonts. Tutti i link di navigazione e i pulsanti non funzionali DEVONO avere 'href="#"' per evitare problemi di reindirizzamento nell'anteprima.
+      Analizza le specifiche e genera il codice. Presta massima attenzione all'estetica: usa ampi spazi bianchi, scegli una palette di colori coerente e professionale, e seleziona abbinamenti di font moderni tramite Google Fonts.
       
+      # IMAGE RULES (Regole per le Immagini)
+      Per ogni tag <img>, usa il servizio Unsplash Source per trovare immagini pertinenti e gratuite. La sintassi è 'https://source.unsplash.com/random/WIDTHxHEIGHT?{keyword}'. Sostituisci {keyword} con un termine in INGLESE pertinente al contenuto (es. 'restaurant,food,pasta' per un ristorante). Usa risoluzioni appropriate come 1600x900 per le hero image e 800x600 per immagini più piccole.
+      
+      # LINK RULES (Regole per i Link)
+      Tutti i link di navigazione e i pulsanti non funzionali DEVONO avere 'href="#"' per evitare problemi di reindirizzamento nell'anteprima.
+
       # ACTION (Specifiche del Cliente)
       - Nome Attività: "${businessName}"
       - Settore di Mercato: "${businessSector}"
