@@ -1,5 +1,8 @@
-// FILE: /app/api/create-project/route.ts
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getServerSession } from "next-auth/next";
+import prisma from "@/lib/prisma";
+// Importi qui la configurazione di NextAuth che creeremo nello sprint successivo
+// import { authOptions } from "../auth/[...nextauth]/route"; 
 
 if (!process.env.GEMINI_API_KEY) {
   throw new Error("GEMINI_API_KEY is not defined");
@@ -10,41 +13,82 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
-  try {
-    const { businessName, businessSector, visualStyle, description } = await req.json();
+  // --- SPRINT 4: LOGICA DI BUSINESS (LIMITE MODIFICHE) ---
+  // Per ora, questa sezione è commentata. La attiveremo quando il sistema di account sarà pronto.
+  /*
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user || !session.user.email) {
+    return new Response(JSON.stringify({ error: "Devi essere loggato per generare un sito." }), { status: 401 });
+  }
 
-    if (!businessName || !businessSector || !visualStyle) {
-      return new Response(JSON.stringify({ error: "Nome, settore e stile sono obbligatori." }), { status: 400 });
+  const user = await prisma.user.findUnique({ where: { email: session.user.email }});
+
+  // Assicurati di aggiungere `generationsMade Int @default(0)` al tuo modello User in schema.prisma
+  if (user && user.generationsMade >= 2) {
+    return new Response(JSON.stringify({ error: "Hai superato il limite di 2 generazioni gratuite." }), { status: 402 });
+  }
+  */
+
+  try {
+    const { businessName, businessSector, visualStyle, pages } = await req.json();
+
+    if (!businessName || !pages || !Array.isArray(pages) || pages.length === 0) {
+      return new Response(JSON.stringify({ error: "Dati mancanti o malformati per la generazione." }), { status: 400 });
     }
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
+    const pagesContent = pages.map((page: {name: string, content: string}) => 
+      `- Pagina "${page.name}":\n  Contenuti richiesti: ${page.content || 'Genera contenuti appropriati per questa pagina basandoti sulle informazioni generali.'}`
+    ).join('\n');
+
     const fullPrompt = `
       # ROLE
-      Assumi il ruolo di un Senior UI/UX Designer e Full-Stack Developer con 20+ anni di esperienza nella creazione di siti web per brand di lusso e startup innovative. La tua specialità è creare design puliti, moderni, accattivanti e altamente professionali.
+      Assumi il ruolo di un Senior Web Architect e Content Strategist con 20 anni di esperienza. Sei un maestro nel creare siti web multi-pagina coerenti, professionali ed esteticamente impeccabili.
       
       # CONTEXT
-      Il tuo compito è generare il codice HTML completo per una landing page esteticamente impeccabile, basata sulle specifiche fornite. Il codice deve essere un singolo file HTML autonomo che usa Tailwind CSS tramite CDN.
+      Stai creando un intero sito web per un cliente. Devi generare i file HTML separati per ogni pagina richiesta. Il design deve essere unificato e riflettere l'identità del brand.
       
       # TASK
-      Analizza le specifiche e genera il codice. Presta la massima attenzione all'estetica: usa ampi spazi bianchi (padding e margin), scegli una palette di colori coerente e professionale, e seleziona abbinamenti di font moderni tramite Google Fonts. Tutti i link di navigazione e i pulsanti non funzionali DEVONO avere 'href="#"' per evitare problemi di reindirizzamento nell'anteprima.
+      Analizza le specifiche generali e i contenuti richiesti per ogni singola pagina. Genera il codice HTML completo per TUTTE le pagine richieste.
       
-      # IMAGE RULES (Regole per le Immagini)
-      Per ogni tag <img>, usa il servizio Unsplash Source per trovare immagini pertinenti e gratuite. La sintassi è 'https://source.unsplash.com/random/WIDTHxHEIGHT?{keyword}'. Sostituisci {keyword} con un termine in INGLESE pertinente al contenuto (es. 'restaurant,food,pasta' per un ristorante). Usa risoluzioni appropriate come 1600x900 per le hero image e 800x600 per immagini più piccole.
+      # REGOLE DI DESIGN e TECNICHE
+      - Stile Generale: "${visualStyle}". Applica questo stile in modo coerente su tutte le pagine.
+      - Palette Colori: Scegli una palette di colori professionale e armonica adatta al settore "${businessSector}".
+      - Font: Usa Google Fonts per garantire leggibilità ed eleganza. Includi il link nel <head> di ogni pagina.
+      - Immagini: Per ogni tag <img>, usa il servizio Unsplash Source: 'https://source.unsplash.com/random/WIDTHxHEIGHT?{keyword_in_inglese}'. Usa keyword pertinenti. Esempio per un ristorante: 'restaurant,italian-food'.
+      - Navigazione: In ogni pagina, crea una navbar <nav> coerente che contenga i link a TUTTE le altre pagine generate. I link DEVONO essere relativi e scritti in minuscolo-senza-spazi.html (es. <a href="./chi-siamo.html">Chi Siamo</a>, <a href="./contatti.html">Contatti</a>). La homepage deve chiamarsi 'index.html'.
       
       # ACTION (Specifiche del Cliente)
       - Nome Attività: "${businessName}"
       - Settore di Mercato: "${businessSector}"
-      - Stile Visivo Desiderato: "${visualStyle}"
-      - Dettagli Aggiuntivi: "${description || 'Nessun dettaglio aggiuntivo. Concentrati sulla qualità del design.'}"
+      - Pagine e Contenuti da Creare:
+      ${pagesContent}
 
-      # FORMAT
-      Rispondi ESCLUSIVAMENTE con il codice HTML completo. Non includere \`\`\`html, commenti o qualsiasi testo al di fuori del codice. Il codice deve iniziare con <!DOCTYPE html> e finire con </html>. Assicurati che nel <head> ci siano i link a Tailwind CSS e Google Fonts, e alla fine del <body> gli script per Lucide Icons.
+      # FORMAT (MOLTO IMPORTANTE)
+      Restituisci tutto il codice in un unico blocco di testo, ma separa ogni file HTML con un commento specifico e riconoscibile: ''. Il nome del file deve essere basato sul nome della pagina, in minuscolo e con trattini. La homepage deve essere 'index.html'. Esempio di output:
+      <!DOCTYPE html>
+      ... (codice completo della homepage) ...
+      </html>
+      <!DOCTYPE html>
+      ... (codice completo della pagina chi siamo) ...
+      </html>
     `;
 
     const result = await model.generateContent(fullPrompt);
     const response = await result.response;
     const text = response.text();
+
+    // --- SPRINT 4: AGGIORNAMENTO CONTATORE DOPO SUCCESSO ---
+    // Una volta attivata l'autenticazione, decommenta questa parte
+    /*
+    if (user) {
+      await prisma.user.update({
+        where: { email: session.user.email! },
+        data: { generationsMade: { increment: 1 } },
+      });
+    }
+    */
 
     return new Response(JSON.stringify({ html: text }), { 
       status: 200,
