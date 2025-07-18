@@ -1,4 +1,4 @@
-// FILE: components/Generator.tsx (Versione finale con l'endpoint corretto)
+// FILE: components/Generator.tsx (Versione finale con gestione errori migliorata)
 'use client';
 import { useState } from 'react';
 import { UtensilsCrossed, Camera, Rocket, Briefcase, Zap, Copy, Check, Loader2 } from 'lucide-react';
@@ -35,26 +35,36 @@ const Generator = ({ onHtmlGenerated }: { onHtmlGenerated: (html: string) => voi
         onHtmlGenerated('');
 
         try {
-            // ECCO LA CORREZIONE: da '/api/generate' a '/api/create-project'
             const response = await fetch('/api/create-project', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt: description })
             });
 
+            // Se la risposta non è "ok" (es. errore 500, 401, etc.)
             if (!response.ok) {
+                // Proviamo a leggere il JSON di errore inviato dal nostro backend
                 const errorData = await response.json();
-                throw new Error(errorData.error || `Errore dal server: ${response.status}`);
+                // Usiamo il messaggio di errore specifico, o un messaggio di fallback
+                throw new Error(errorData.error || `Errore HTTP: ${response.status}`);
             }
             
             const data = await response.json();
+            
+            // Controlliamo se l'API ha restituito del codice HTML
+            if (!data.html) {
+                throw new Error("La risposta dell'API non conteneva codice HTML.");
+            }
+
             const cleanHtml = data.html.replace(/^```html\n/, '').replace(/\n```$/, '');
             
             setGeneratedHtml(cleanHtml);
             onHtmlGenerated(cleanHtml); 
             setStatus('Sito generato con successo!');
+
         } catch (error: any) {
-            console.error(error);
+            console.error("Errore completo:", error);
+            // Mostriamo il messaggio di errore specifico
             setStatus(`Errore: ${error.message}`);
         } finally {
             setIsLoading(false);
@@ -69,6 +79,7 @@ const Generator = ({ onHtmlGenerated }: { onHtmlGenerated: (html: string) => voi
 
     return (
       <section id="generator" className="py-20 bg-black/20">
+        {/* IL RESTO DEL CODICE JSX RIMANE IDENTICO... */}
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-white">Crea il tuo sito con Gemini</h2>
@@ -136,4 +147,5 @@ const Generator = ({ onHtmlGenerated }: { onHtmlGenerated: (html: string) => voi
       </section>
     );
 };
+export default Generator;
 export default Generator;
