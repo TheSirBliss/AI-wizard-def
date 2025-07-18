@@ -21,34 +21,27 @@ export default function RootLayout({
   return (
     <html lang="it" className="!scroll-smooth">
       <head>
-        {/* Script #1: Inizializza la configurazione di Iubenda */}
-        <Script id="iubenda-config" strategy="beforeInteractive">
+        {/*
+          INCOLLI QUI SOTTO LO SNIPPET COMPLETO DELLA COOKIE SOLUTION DI IUBENDA
+          Vada sulla sua dashboard di Iubenda > Cookie Solution > Clicchi su "Integra" e copi lo snippet.
+        */}
+        <Script id="iubenda-cs" strategy="beforeInteractive">
           {`
-            var _iub = _iub || [];
-            _iub.csConfiguration = {
-              "lang": "it",
-              "siteId": 4166129,
-              "cookiePolicyId": 89179131,
-              "banner": {
-                "position": "float-bottom-center"
-              }
-            };
+            // Esempio di come apparirà lo snippet di Iubenda:
+            // var _iub = _iub || [];
+            // _iub.csConfiguration = {"lang":"it","siteId":123456,"cookiePolicyId":123456, "banner":{ "position":"float-top-center" }};
           `}
         </Script>
-        {/* Script #2: Carica il motore della Cookie Solution di Iubenda */}
-        <Script 
-          id="iubenda-main-script"
-          src="//cdn.iubenda.com/cs/iubenda_cs.js" 
-          strategy="beforeInteractive" 
-          async 
-        />
+        <Script src="//cdn.iubenda.com/cs/iubenda_cs.js" strategy="beforeInteractive" async />
       </head>
       <body className={`${inter.className} bg-[#0a0a0a] text-neutral-50 antialiased`}>
         {children}
         
+        {/* Componenti di Vercel per le statistiche */}
         <Analytics />
         <SpeedInsights />
         
+        {/* Script per Google Translate */}
         <Script 
           src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" 
           strategy="afterInteractive" 
