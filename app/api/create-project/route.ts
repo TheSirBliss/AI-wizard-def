@@ -16,7 +16,7 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify({ error: "Nome, settore e stile sono obbligatori." }), { status: 400 });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
     const fullPrompt = `
       # ROLE
