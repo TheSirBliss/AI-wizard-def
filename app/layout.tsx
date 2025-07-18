@@ -27,9 +27,15 @@ export default function RootLayout({
         */}
         <Script id="iubenda-cs" strategy="beforeInteractive">
           {`
-            // Esempio di come apparirà lo snippet di Iubenda:
-            // var _iub = _iub || [];
-            // _iub.csConfiguration = {"lang":"it","siteId":123456,"cookiePolicyId":123456, "banner":{ "position":"float-top-center" }};
+            <script type="text/javascript">
+            var _iub = _iub || [];
+            _iub.csConfiguration = {"siteId":4166129,"cookiePolicyId":89179131,"lang":"en","storage":{"useSiteId":true}};
+            </script>
+            <script type="text/javascript" src="https://cs.iubenda.com/autoblocking/4166129.js"></script>
+            <script type="text/javascript" src="//cdn.iubenda.com/cs/tcf/stub-v2.js"></script>
+            <script type="text/javascript" src="//cdn.iubenda.com/cs/tcf/safe-tcf-v2.js"></script>
+            <script type="text/javascript" src="//cdn.iubenda.com/cs/gpp/stub.js"></script>
+            <script type="text/javascript" src="//cdn.iubenda.com/cs/iubenda_cs.js" charset="UTF-8" async></script>
           `}
         </Script>
         <Script src="//cdn.iubenda.com/cs/iubenda_cs.js" strategy="beforeInteractive" async />
