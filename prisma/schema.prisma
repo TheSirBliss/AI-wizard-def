@@ -1,0 +1,30 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NONPOOLING") // uses a direct connection
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  generatedSites GeneratedSite[]
+}
+
+model GeneratedSite {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  prompt      String
+  htmlContent String
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+}
