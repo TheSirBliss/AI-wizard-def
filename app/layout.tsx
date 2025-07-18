@@ -1,8 +1,10 @@
-// FILE: app/layout.tsx
+// FILE: /app/layout.tsx
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,18 +21,27 @@ export default function RootLayout({
   return (
     <html lang="it" className="!scroll-smooth">
       <head>
-        {/* INCOLLI QUI LO SNIPPET DEL BANNER COOKIE DI IUBENDA */}
-        <Script id="iubenda-cs-script">
+        {/*
+          INCOLLI QUI SOTTO LO SNIPPET COMPLETO DELLA COOKIE SOLUTION DI IUBENDA
+          Vada sulla sua dashboard di Iubenda > Cookie Solution > Clicchi su "Integra" e copi lo snippet.
+        */}
+        <Script id="iubenda-cs" strategy="beforeInteractive">
           {`
-            // Il suo codice JavaScript di Iubenda va qui dentro.
-            // Esempio:
+            // Esempio di come apparirà lo snippet di Iubenda:
             // var _iub = _iub || [];
-            // _iub.csConfiguration = {"lang":"it","siteId":123456,"cookiePolicyId":123456, ...};
+            // _iub.csConfiguration = {"lang":"it","siteId":123456,"cookiePolicyId":123456, "banner":{ "position":"float-top-center" }};
           `}
         </Script>
+        <Script src="//cdn.iubenda.com/cs/iubenda_cs.js" strategy="beforeInteractive" async />
       </head>
       <body className={`${inter.className} bg-[#0a0a0a] text-neutral-50 antialiased`}>
         {children}
+        
+        {/* Componenti di Vercel per le statistiche */}
+        <Analytics />
+        <SpeedInsights />
+        
+        {/* Script per Google Translate */}
         <Script 
           src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" 
           strategy="afterInteractive" 
