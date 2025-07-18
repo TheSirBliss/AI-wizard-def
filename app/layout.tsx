@@ -21,33 +21,34 @@ export default function RootLayout({
   return (
     <html lang="it" className="!scroll-smooth">
       <head>
-        {/*
-          INCOLLI QUI SOTTO LO SNIPPET COMPLETO DELLA COOKIE SOLUTION DI IUBENDA
-          Vada sulla sua dashboard di Iubenda > Cookie Solution > Clicchi su "Integra" e copi lo snippet.
-        */}
-        <Script id="iubenda-cs" strategy="beforeInteractive">
+        {/* Script #1: Inizializza la configurazione di Iubenda */}
+        <Script id="iubenda-config" strategy="beforeInteractive">
           {`
-            <script type="text/javascript">
             var _iub = _iub || [];
-            _iub.csConfiguration = {"siteId":4166129,"cookiePolicyId":89179131,"lang":"en","storage":{"useSiteId":true}};
-            </script>
-            <script type="text/javascript" src="https://cs.iubenda.com/autoblocking/4166129.js"></script>
-            <script type="text/javascript" src="//cdn.iubenda.com/cs/tcf/stub-v2.js"></script>
-            <script type="text/javascript" src="//cdn.iubenda.com/cs/tcf/safe-tcf-v2.js"></script>
-            <script type="text/javascript" src="//cdn.iubenda.com/cs/gpp/stub.js"></script>
-            <script type="text/javascript" src="//cdn.iubenda.com/cs/iubenda_cs.js" charset="UTF-8" async></script>
+            _iub.csConfiguration = {
+              "lang": "it",
+              "siteId": 4166129,
+              "cookiePolicyId": 89179131,
+              "banner": {
+                "position": "float-bottom-center"
+              }
+            };
           `}
         </Script>
-        <Script src="//cdn.iubenda.com/cs/iubenda_cs.js" strategy="beforeInteractive" async />
+        {/* Script #2: Carica il motore della Cookie Solution di Iubenda */}
+        <Script 
+          id="iubenda-main-script"
+          src="//cdn.iubenda.com/cs/iubenda_cs.js" 
+          strategy="beforeInteractive" 
+          async 
+        />
       </head>
       <body className={`${inter.className} bg-[#0a0a0a] text-neutral-50 antialiased`}>
         {children}
         
-        {/* Componenti di Vercel per le statistiche */}
         <Analytics />
         <SpeedInsights />
         
-        {/* Script per Google Translate */}
         <Script 
           src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" 
           strategy="afterInteractive" 
