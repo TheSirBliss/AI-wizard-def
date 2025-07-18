@@ -148,4 +148,3 @@ const Generator = ({ onHtmlGenerated }: { onHtmlGenerated: (html: string) => voi
     );
 };
 export default Generator;
-export default Generator;
