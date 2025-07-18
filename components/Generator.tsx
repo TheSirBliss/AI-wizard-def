@@ -1,9 +1,8 @@
-// FILE: components/Generator.tsx (Versione finale corretta)
+// FILE: components/Generator.tsx (Versione finale con l'endpoint corretto)
 'use client';
 import { useState } from 'react';
 import { UtensilsCrossed, Camera, Rocket, Briefcase, Zap, Copy, Check, Loader2 } from 'lucide-react';
 
-// Dati dei template
 const templates = [
   { id: 'restaurant', name: 'Ristorante', icon: UtensilsCrossed, prompt: "Crea un sito per un ristorante italiano moderno a Milano chiamato 'Bella Cucina'. Voglio una homepage con foto grandi dei piatti, una sezione 'Chi Siamo', una pagina 'Menu' dettagliata con antipasti, primi, secondi e dessert, e una pagina 'Contatti' con mappa e form di prenotazione. Lo stile deve essere elegante e accogliente, con colori scuri come il nero e il bordeaux, e accenti dorati." },
   { id: 'portfolio', name: 'Portfolio', icon: Camera, prompt: "Realizza un sito portfolio per un fotografo professionista specializzato in ritratti e matrimoni. Il sito deve avere una homepage con una galleria a griglia dei migliori scatti, una pagina 'About Me' con biografia e foto personale, una pagina 'Servizi' che descrive i pacchetti offerti, e una pagina 'Contatti'. Lo stile deve essere minimalista e moderno, con sfondo bianco o grigio chiaro per far risaltare le foto." },
@@ -11,7 +10,6 @@ const templates = [
   { id: 'consultant', name: 'Consulente', icon: Briefcase, prompt: "Crea un sito web professionale per un consulente finanziario. Deve includere una homepage che comunichi fiducia e professionalità, una pagina 'Servizi' che elenchi le aree di consulenza (pianificazione pensionistica, investimenti, etc.), una pagina 'Chi Sono' con le credenziali e l'esperienza, e un blog per articoli di settore. Lo stile deve essere corporate e affidabile, con colori sobri come il blu navy e il grigio." }
 ];
 
-// Il componente accetta una prop 'onHtmlGenerated' per comunicare con la pagina principale
 const Generator = ({ onHtmlGenerated }: { onHtmlGenerated: (html: string) => void }) => {
     const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
     const [description, setDescription] = useState('');
@@ -34,26 +32,30 @@ const Generator = ({ onHtmlGenerated }: { onHtmlGenerated: (html: string) => voi
         setIsLoading(true);
         setStatus('Generazione in corso...');
         setGeneratedHtml('');
-        onHtmlGenerated(''); // Resetta il codice nel componente padre
+        onHtmlGenerated('');
 
         try {
-            const response = await fetch('/api/generate', {
+            // ECCO LA CORREZIONE: da '/api/generate' a '/api/create-project'
+            const response = await fetch('/api/create-project', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt: description })
             });
 
-            if (!response.ok) throw new Error(`Errore dal server: ${response.status}`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Errore dal server: ${response.status}`);
+            }
             
             const data = await response.json();
             const cleanHtml = data.html.replace(/^```html\n/, '').replace(/\n```$/, '');
             
             setGeneratedHtml(cleanHtml);
-            onHtmlGenerated(cleanHtml); // <-- Passa il codice generato al componente padre
+            onHtmlGenerated(cleanHtml); 
             setStatus('Sito generato con successo!');
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            setStatus('Errore durante la generazione. Controlla la chiave API su Vercel.');
+            setStatus(`Errore: ${error.message}`);
         } finally {
             setIsLoading(false);
         }
